@@ -9,9 +9,13 @@
  */
 package org.len.tdl.chat;
 
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.util.List;
+import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
@@ -20,23 +24,35 @@ import javax.swing.JScrollPane;
  * @author riyanto
  */
 public class ChatGUI extends javax.swing.JFrame {
-
+    
     private final ChatPanel chatPanel = new ChatPanel();
     private final ChatMain chatMain = new ChatMain();
     private boolean initDone = false;
     private boolean needToRefreshChat = false;
-        
+
     /**
      * Creates new form MainChat
      */
     public ChatGUI() {
         initComponents();
         jPanelMessager.setLayout(new java.awt.BorderLayout());
-        chatMain.initChat();  
+        chatMain.initChat();
         jLabelMyKapal.setText("My ID: " + chatMain.getSelfName());
         showDestinationList();
+        chatPanel.initChatWindow(chatMain.getChatContentList());
+        initChatFrame();
+//        // Add empty JPanel as an object to fill the empty space available.
+//        GridBagConstraints gbc = new GridBagConstraints();
+//        gbc.weightx = 1.0;
+//        gbc.gridwidth = GridBagConstraints.REMAINDER;
+//        gbc.fill = GridBagConstraints.BOTH;
+//        gbc.weighty = 1.0;
+//        jPanelMessager.add(new JPanel(), gbc);
+        
         timerRefreshChat.start();
         initDone = true;
+
+//        chatPanel.initializeScrollPane();
     }
 
     /**
@@ -160,14 +176,12 @@ public class ChatGUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
-    private void showDestinationList()
-    {
+
+    private void showDestinationList() {
         jComboBoxChatDestination.removeAllItems();
         List<String> destNames = chatMain.getDestinationNames();
         
-        if (destNames.size() > 0)
-        {
+        if (destNames.size() > 0) {
             for (String destName : destNames) {
                 jComboBoxChatDestination.addItem(destName);
             }
@@ -177,73 +191,77 @@ public class ChatGUI extends javax.swing.JFrame {
             needToRefreshChat = true;
         }
     }
-    
-     /**
+
+    /**
      * Method to show update chat
      */
     javax.swing.Timer timerRefreshChat = new javax.swing.Timer(100, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if ( chatMain.isReceiveChat() || needToRefreshChat )
-            {                
-                showChat();           
-                needToRefreshChat = false;                
+            if (chatMain.isReceiveChat() || needToRefreshChat) {
+                showChat();
+                needToRefreshChat = false;
             }
         }
     });
-
-    private void showChat()
-    {
+    
+    private void initChatFrame() {
         jPanelMessager.removeAll();
         JScrollPane jspane = chatPanel.showChatWindow(chatMain.getChatContentList());
         jPanelMessager.add(jspane);
-        jPanelMessager.revalidate();     
-        scrollDown(jspane);     
+        jPanelMessager.revalidate();
+//        scrollDown(jspane);
+
+    }
+
+    private void showChat() {
+        
+        chatPanel.addChat(chatMain.getChatContentList());
+        jPanelMessager.validate();
+        
     }
     
     private void scrollDown(JScrollPane scrollPane) {
-      
+        
         scrollPane.validate();
         JScrollBar verticalBar = scrollPane.getVerticalScrollBar();
-        int maxScrollValue = verticalBar.getMaximum();       
+        int maxScrollValue = verticalBar.getMaximum();
         verticalBar.setValue(maxScrollValue);
-    } 
+    }
 
     private void jTextFieldMessageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldMessageActionPerformed
-
-        if (jTextFieldMessage.getText().length() > 0)
-        {
-            String sChat = jTextFieldMessage.getText();           
-            chatMain.sendChat(sChat);                       
+        
+        if (jTextFieldMessage.getText().length() > 0) {
+            String sChat = jTextFieldMessage.getText();
+            chatMain.sendChat(sChat);
             needToRefreshChat = true;
             jTextFieldMessage.setText("");
-            jLabelInfo.setText("");   
+            jLabelInfo.setText("");
         }
     }//GEN-LAST:event_jTextFieldMessageActionPerformed
 
     private void jComboBoxChatDestinationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxChatDestinationActionPerformed
-        if (initDone)
-        {
+        if (initDone) {
             chatMain.setDestination(jComboBoxChatDestination.getSelectedIndex());
             jLabelInfo.setText(" ");
             jTextFieldMessage.requestFocusInWindow();
             needToRefreshChat = true;
         }
     }//GEN-LAST:event_jComboBoxChatDestinationActionPerformed
-
-    private void showCounterChar()
-    {
-        int n_char = jTextFieldMessage.getText().length();
-        if (n_char > 0)
-            jLabelInfo.setText("Typing " + n_char + " chars, [Press ENTER to Send]");
-        else
-            jLabelInfo.setText("");
-    }
     
+    private void showCounterChar() {
+        int n_char = jTextFieldMessage.getText().length();
+        if (n_char > 0) {
+            jLabelInfo.setText("Typing " + n_char + " chars, [Press ENTER to Send]");
+        } else {
+            jLabelInfo.setText("");
+        }
+    }
+
     private void jTextFieldMessageKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldMessageKeyPressed
         showCounterChar();
     }//GEN-LAST:event_jTextFieldMessageKeyPressed
-    
+
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         chatMain.closeChat();
     }//GEN-LAST:event_formWindowClosing

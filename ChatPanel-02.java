@@ -40,41 +40,16 @@ import org.len.tdl.chat.ChatData.ChatEntry;
  */
 public class ChatPanel {
 
-    private JScrollPane jsp;
+    private int heightBubble = 0;
     private BubblePane bubble;
-    private JPanel mainPanel;
-    private JPanel chatPanel;
+    JScrollPane jsp = new JScrollPane();
 
-//    public ChatPanel(){
-//        jsp = new JScrollPane();
-//        initializeScrollPane();
-//    }
-//    private void initializeScrollPane() {
-//        jsp.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-//            public void adjustmentValueChanged(AdjustmentEvent e) {
-////                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
-////                bubble.select(bubble.getCaretPosition()*100 ,0);
-//                bubble.select(bubble.getHeight(),0);
-//            }
-//        });
-//    }
-    public void initChatWindow(List<ChatEntry> chatContentList) {
-        // Create parent container JPanel for all other JComponents.
-        mainPanel = new JPanel();
-        mainPanel.setBackground(new Color(51, 51, 51));
-        mainPanel.setOpaque(true);
-        mainPanel.setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(buildChatUI(chatContentList), gbc);
-
-//        jsp.add(new VerticalScrollPane(mainPanel));
-        jsp = new JScrollPane(new VerticalScrollPane(mainPanel));
-        jsp.setDoubleBuffered(true);
-
+    public void initializeScrollPane() {
+        jsp.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+            }
+        });
     }
 
     public JScrollPane showChatWindow(List<ChatEntry> chatContentList) {
@@ -90,99 +65,20 @@ public class ChatPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(buildChatUI(chatContentList), gbc);
 
-//        jsp.add(new VerticalScrollPane(mainPanel));
-        jsp = new JScrollPane(new VerticalScrollPane(mainPanel));
+//        JScrollPane jsp = new JScrollPane(new VerticalScrollPane(mainPanel));
+        jsp.add(new VerticalScrollPane(mainPanel));
         jsp.setDoubleBuffered(true);
 
+//        jsp.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+//            public void adjustmentValueChanged(AdjustmentEvent e) {
+//                bubble.select(heightBubble + 1000, 0);
+//            }
+//        });
         return jsp;
     }
 
-    public void addChat(List<ChatEntry> chatContentList) {
-
-        GridBagConstraints gbc = new GridBagConstraints();
-
-        ChatEntry chatEntry = chatContentList.get(chatContentList.size() - 1);
-
-        JLabel nameLabel = new JLabel(chatEntry.name);
-        bubble = new BubblePane(chatPanel, chatEntry.content);
-//            bubble.select(bubble.getHeight()+1000,0);
-
-        // Arrange each chat entry based on the user.
-        if (chatEntry.type == 1) {
-            bubble.setBackground(Color.YELLOW);
-            gbc.anchor = GridBagConstraints.WEST;
-        } else {
-            bubble.setBackground(Color.CYAN);
-            gbc.anchor = GridBagConstraints.EAST;
-        }
-
-        gbc.insets.set(0, 0, 5, 0);
-        gbc.weightx = 1.0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.NONE;
-        chatPanel.add(nameLabel, gbc);
-
-        if (gbc.anchor == GridBagConstraints.WEST) {
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            gbc.insets.set(0, 0, 0, 40);
-            chatPanel.add(bubble, gbc);
-        } else {
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            gbc.insets.set(0, 40, 0, 0);
-            chatPanel.add(bubble, gbc);
-        }
-
-        if (chatEntry.type == 0) {
-            gbc.insets.set(0, 0, 0, 0);
-            gbc.weightx = 1.0;
-            gbc.gridwidth = GridBagConstraints.REMAINDER;
-            gbc.fill = GridBagConstraints.NONE;
-            JLabel dateLabel = new JLabel(chatEntry.date.split(" ")[1]);
-            dateLabel.setForeground(Color.GRAY);
-            chatPanel.add(dateLabel, gbc);
-
-            gbc.insets.set(0, 0, 40, 0);
-            gbc.weightx = 1.0;
-            gbc.gridwidth = GridBagConstraints.REMAINDER;
-            gbc.fill = GridBagConstraints.NONE;
-
-            String statusString = "";
-            switch (chatEntry.status) {
-                case ChatStatus.PENDING:
-                    statusString = "Pending";
-                    break;
-                case ChatStatus.ONPROGRES:
-                    statusString = "On progress";
-                    break;
-                case ChatStatus.DELIVERED:
-                    statusString = "Delivered";
-                    break;
-                case ChatStatus.FAIL:
-                    statusString = "Fail";
-                    break;
-            }
-            JLabel statusLabel = new JLabel(statusString);
-            statusLabel.setForeground(Color.GRAY);
-            chatPanel.add(statusLabel, gbc);
-        } else {
-            gbc.insets.set(0, 0, 40, 0);
-            gbc.weightx = 1.0;
-            gbc.gridwidth = GridBagConstraints.REMAINDER;
-            gbc.fill = GridBagConstraints.NONE;
-            JLabel dateLabel = new JLabel(chatEntry.date.split(" ")[1]);
-            dateLabel.setForeground(Color.GRAY);
-            chatPanel.add(dateLabel, gbc);
-        }
-
-        bubble.selectAll();
-
-        jsp.validate();
-        
-        jsp.getVerticalScrollBar().setValue(jsp.getVerticalScrollBar().getMaximum());
-    }
-
     private JPanel buildChatUI(List<ChatEntry> chatContentList) {
-        chatPanel = new JPanel();
+        JPanel chatPanel = new JPanel();
         chatPanel.setLayout(new GridBagLayout());
         chatPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -209,8 +105,8 @@ public class ChatPanel {
 
             JLabel nameLabel = new JLabel(chatEntry.name);
             bubble = new BubblePane(chatPanel, chatEntry.content);
-//            bubble.select(bubble.getHeight()+1000,0);
-
+//            setHeightBubble(bubble.getHeight());
+//            bubble.selectAll();
             // Arrange each chat entry based on the user.
             if (chatEntry.type == 1) {
                 bubble.setBackground(Color.YELLOW);
@@ -282,6 +178,20 @@ public class ChatPanel {
         return chatPanel;
     }
 
+    /**
+     * @return the heightBubble
+     */
+    public int getHeightBubble() {
+        return heightBubble;
+    }
+
+    /**
+     * @param heightBubble the heightBubble to set
+     */
+    public void setHeightBubble(int heightBubble) {
+        this.heightBubble = heightBubble;
+    }
+
     private class BubblePane extends JTextArea {
 
         private static final long serialVersionUID = -6113801969569504295L;
@@ -300,8 +210,6 @@ public class ChatPanel {
             setEditable(false);
             setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             setText(text);
-
-//            append(text);
         }
 
         @Override
@@ -345,7 +253,6 @@ public class ChatPanel {
             }
 
             super.paintComponent(g);
-
         }
 
         private int countLines(JTextArea textArea) {

@@ -17,8 +17,6 @@ import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineBreakMeasurer;
 import java.awt.geom.Area;
@@ -40,47 +38,10 @@ import org.len.tdl.chat.ChatData.ChatEntry;
  */
 public class ChatPanel {
 
-    private JScrollPane jsp;
-    private BubblePane bubble;
-    private JPanel mainPanel;
-    private JPanel chatPanel;
-
-//    public ChatPanel(){
-//        jsp = new JScrollPane();
-//        initializeScrollPane();
-//    }
-//    private void initializeScrollPane() {
-//        jsp.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-//            public void adjustmentValueChanged(AdjustmentEvent e) {
-////                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
-////                bubble.select(bubble.getCaretPosition()*100 ,0);
-//                bubble.select(bubble.getHeight(),0);
-//            }
-//        });
-//    }
-    public void initChatWindow(List<ChatEntry> chatContentList) {
-        // Create parent container JPanel for all other JComponents.
-        mainPanel = new JPanel();
-        mainPanel.setBackground(new Color(51, 51, 51));
-        mainPanel.setOpaque(true);
-        mainPanel.setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(buildChatUI(chatContentList), gbc);
-
-//        jsp.add(new VerticalScrollPane(mainPanel));
-        jsp = new JScrollPane(new VerticalScrollPane(mainPanel));
-        jsp.setDoubleBuffered(true);
-
-    }
-
     public JScrollPane showChatWindow(List<ChatEntry> chatContentList) {
         // Create parent container JPanel for all other JComponents.
         JPanel mainPanel = new JPanel();
-        mainPanel.setBackground(new Color(51, 51, 51));
+        mainPanel.setBackground(new Color(51,51,51));
         mainPanel.setOpaque(true);
         mainPanel.setLayout(new GridBagLayout());
 
@@ -90,112 +51,28 @@ public class ChatPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(buildChatUI(chatContentList), gbc);
 
-//        jsp.add(new VerticalScrollPane(mainPanel));
-        jsp = new JScrollPane(new VerticalScrollPane(mainPanel));
+        JScrollPane jsp = new JScrollPane(new VerticalScrollPane(mainPanel));
         jsp.setDoubleBuffered(true);
-
+        
         return jsp;
     }
 
-    public void addChat(List<ChatEntry> chatContentList) {
-
-        GridBagConstraints gbc = new GridBagConstraints();
-
-        ChatEntry chatEntry = chatContentList.get(chatContentList.size() - 1);
-
-        JLabel nameLabel = new JLabel(chatEntry.name);
-        bubble = new BubblePane(chatPanel, chatEntry.content);
-//            bubble.select(bubble.getHeight()+1000,0);
-
-        // Arrange each chat entry based on the user.
-        if (chatEntry.type == 1) {
-            bubble.setBackground(Color.YELLOW);
-            gbc.anchor = GridBagConstraints.WEST;
-        } else {
-            bubble.setBackground(Color.CYAN);
-            gbc.anchor = GridBagConstraints.EAST;
-        }
-
-        gbc.insets.set(0, 0, 5, 0);
-        gbc.weightx = 1.0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.NONE;
-        chatPanel.add(nameLabel, gbc);
-
-        if (gbc.anchor == GridBagConstraints.WEST) {
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            gbc.insets.set(0, 0, 0, 40);
-            chatPanel.add(bubble, gbc);
-        } else {
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            gbc.insets.set(0, 40, 0, 0);
-            chatPanel.add(bubble, gbc);
-        }
-
-        if (chatEntry.type == 0) {
-            gbc.insets.set(0, 0, 0, 0);
-            gbc.weightx = 1.0;
-            gbc.gridwidth = GridBagConstraints.REMAINDER;
-            gbc.fill = GridBagConstraints.NONE;
-            JLabel dateLabel = new JLabel(chatEntry.date.split(" ")[1]);
-            dateLabel.setForeground(Color.GRAY);
-            chatPanel.add(dateLabel, gbc);
-
-            gbc.insets.set(0, 0, 40, 0);
-            gbc.weightx = 1.0;
-            gbc.gridwidth = GridBagConstraints.REMAINDER;
-            gbc.fill = GridBagConstraints.NONE;
-
-            String statusString = "";
-            switch (chatEntry.status) {
-                case ChatStatus.PENDING:
-                    statusString = "Pending";
-                    break;
-                case ChatStatus.ONPROGRES:
-                    statusString = "On progress";
-                    break;
-                case ChatStatus.DELIVERED:
-                    statusString = "Delivered";
-                    break;
-                case ChatStatus.FAIL:
-                    statusString = "Fail";
-                    break;
-            }
-            JLabel statusLabel = new JLabel(statusString);
-            statusLabel.setForeground(Color.GRAY);
-            chatPanel.add(statusLabel, gbc);
-        } else {
-            gbc.insets.set(0, 0, 40, 0);
-            gbc.weightx = 1.0;
-            gbc.gridwidth = GridBagConstraints.REMAINDER;
-            gbc.fill = GridBagConstraints.NONE;
-            JLabel dateLabel = new JLabel(chatEntry.date.split(" ")[1]);
-            dateLabel.setForeground(Color.GRAY);
-            chatPanel.add(dateLabel, gbc);
-        }
-
-        bubble.selectAll();
-
-        jsp.validate();
-        
-        jsp.getVerticalScrollBar().setValue(jsp.getVerticalScrollBar().getMaximum());
-    }
-
     private JPanel buildChatUI(List<ChatEntry> chatContentList) {
-        chatPanel = new JPanel();
+        JPanel chatPanel = new JPanel();
         chatPanel.setLayout(new GridBagLayout());
         chatPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         GridBagConstraints gbc = new GridBagConstraints();
-
+        
         int previousDate = 0;
         for (ChatEntry chatEntry : chatContentList) {
-
+            
             // DATE
-            String sDate = chatEntry.date.split(" ")[0];
+            String sDate = chatEntry.date.split(" ")[0];  
             String[] date = sDate.split("/");
             int currentDate = Integer.valueOf(date[1]) * 12 + Integer.valueOf(date[0]);
-            if (currentDate != previousDate) {
+            if (currentDate != previousDate)
+            {
                 JLabel dateSpaceLabel = new JLabel("[ " + sDate + " ]");
                 gbc.anchor = GridBagConstraints.CENTER;
                 gbc.insets.set(0, 0, 5, 0);
@@ -205,17 +82,17 @@ public class ChatPanel {
                 dateSpaceLabel.setForeground(Color.GRAY);
                 chatPanel.add(dateSpaceLabel, gbc);
             }
-            previousDate = currentDate;
+            previousDate = currentDate;          
 
             JLabel nameLabel = new JLabel(chatEntry.name);
-            bubble = new BubblePane(chatPanel, chatEntry.content);
-//            bubble.select(bubble.getHeight()+1000,0);
+            BubblePane bubble = new BubblePane(chatPanel, chatEntry.content);
 
             // Arrange each chat entry based on the user.
             if (chatEntry.type == 1) {
                 bubble.setBackground(Color.YELLOW);
                 gbc.anchor = GridBagConstraints.WEST;
-            } else {
+            }
+            else {
                 bubble.setBackground(Color.CYAN);
                 gbc.anchor = GridBagConstraints.EAST;
             }
@@ -230,45 +107,43 @@ public class ChatPanel {
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 gbc.insets.set(0, 0, 0, 40);
                 chatPanel.add(bubble, gbc);
-            } else {
+            }
+            else {
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 gbc.insets.set(0, 40, 0, 0);
                 chatPanel.add(bubble, gbc);
             }
-
-            if (chatEntry.type == 0) {
+ 
+            if (chatEntry.type == 0) 
+            {
                 gbc.insets.set(0, 0, 0, 0);
                 gbc.weightx = 1.0;
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
                 gbc.fill = GridBagConstraints.NONE;
                 JLabel dateLabel = new JLabel(chatEntry.date.split(" ")[1]);
                 dateLabel.setForeground(Color.GRAY);
-                chatPanel.add(dateLabel, gbc);
-
+                chatPanel.add(dateLabel, gbc);                
+                
                 gbc.insets.set(0, 0, 40, 0);
                 gbc.weightx = 1.0;
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
-                gbc.fill = GridBagConstraints.NONE;
-
+                gbc.fill = GridBagConstraints.NONE;   
+                
+                
                 String statusString = "";
-                switch (chatEntry.status) {
-                    case ChatStatus.PENDING:
-                        statusString = "Pending";
-                        break;
-                    case ChatStatus.ONPROGRES:
-                        statusString = "On progress";
-                        break;
-                    case ChatStatus.DELIVERED:
-                        statusString = "Delivered";
-                        break;
-                    case ChatStatus.FAIL:
-                        statusString = "Fail";
-                        break;
+                switch (chatEntry.status)
+                {
+                    case ChatStatus.PENDING: statusString = "Pending"; break;
+                    case ChatStatus.ONPROGRES: statusString = "On progress"; break;
+                    case ChatStatus.DELIVERED: statusString = "Delivered"; break;
+                    case ChatStatus.FAIL: statusString = "Fail"; break;
                 }
                 JLabel statusLabel = new JLabel(statusString);
                 statusLabel.setForeground(Color.GRAY);
                 chatPanel.add(statusLabel, gbc);
-            } else {
+            }
+            else
+            {
                 gbc.insets.set(0, 0, 40, 0);
                 gbc.weightx = 1.0;
                 gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -277,6 +152,8 @@ public class ChatPanel {
                 dateLabel.setForeground(Color.GRAY);
                 chatPanel.add(dateLabel, gbc);
             }
+            
+            bubble.selectAll();
         }
 
         return chatPanel;
@@ -300,8 +177,6 @@ public class ChatPanel {
             setEditable(false);
             setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             setText(text);
-
-//            append(text);
         }
 
         @Override
@@ -321,6 +196,7 @@ public class ChatPanel {
             Area area = new Area(rect);
             g2d.draw(area);
 
+
             int lc = countLines(this);
             GridBagLayout gbl = (GridBagLayout) mParent.getLayout();
             GridBagConstraints constraints = gbl.getConstraints(this);
@@ -329,12 +205,12 @@ public class ChatPanel {
                     constraints.fill = GridBagConstraints.NONE;
                     gbl.setConstraints(this, constraints);
                     this.setSize(
-                            getFontMetrics(getFont()).stringWidth(getText())
-                            + this.getBorder().getBorderInsets(this).left
-                            + this.getBorder().getBorderInsets(this).right,
-                            getHeight()
-                            + this.getBorder().getBorderInsets(this).top
-                            + this.getBorder().getBorderInsets(this).bottom);
+                            getFontMetrics(getFont()).stringWidth(getText()) + 
+                            this.getBorder().getBorderInsets(this).left +
+                            this.getBorder().getBorderInsets(this).right, 
+                            getHeight() +
+                            this.getBorder().getBorderInsets(this).top + 
+                            this.getBorder().getBorderInsets(this).bottom);
                 }
             } else {
                 if (constraints.fill == GridBagConstraints.NONE) {
@@ -345,7 +221,6 @@ public class ChatPanel {
             }
 
             super.paintComponent(g);
-
         }
 
         private int countLines(JTextArea textArea) {
@@ -370,8 +245,7 @@ public class ChatPanel {
     /**
      * This class is used to make the JTextArea lines wrap every time the window
      * is resized. Without this, the JTextArea lines will not shrink back if the
-     * parent window shrinks. This is achieved by returning true on
-     * getScrollableTracksViewportWidth();
+     * parent window shrinks. This is achieved by returning true on getScrollableTracksViewportWidth();
      */
     private class VerticalScrollPane extends JPanel implements Scrollable {
 
@@ -418,4 +292,5 @@ public class ChatPanel {
         }
     }
 
+    
 }
