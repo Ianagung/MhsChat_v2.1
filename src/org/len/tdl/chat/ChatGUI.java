@@ -35,6 +35,7 @@ public class ChatGUI extends javax.swing.JFrame {
      * Creates new form MainChat
      */
     public ChatGUI() {
+
         initComponents();
         jPanelMessager.setLayout(new java.awt.BorderLayout());
         chatMain.initChat();
@@ -204,15 +205,15 @@ public class ChatGUI extends javax.swing.JFrame {
                 if (chatMain.isReceiveAckFlag()) {
                     updateStatChat();
                     chatMain.setReceiveChatFlag(false);
-                    
+
                 } else if (switchChat) {
                     switchOnlyChat();
                     switchChat = false;
                     needToRefreshChat = false;
-                } else if (needToRefreshChat){
+                } else if (needToRefreshChat) {
                     showChat();
                     needToRefreshChat = false;
-                } else if (chatMain.isReceiveChat()){
+                } else if (chatMain.isReceiveChat()) {
                     showChat();
                     needToRefreshChat = false;
                 }
@@ -332,6 +333,8 @@ public class ChatGUI extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
+//                System.setProperty("apple.laf.useScreenMenuBar", "true");
+//                System.setProperty("com.apple.mrj.application.apple.menu.about.name", "MHS Chat v.2");
                 new ChatGUI().setVisible(true);
             }
         });
