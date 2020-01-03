@@ -87,7 +87,7 @@ public class ChatGUI extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("MHS Chat");
+        setTitle("Mhs Chat V.2");
         setBackground(new java.awt.Color(102, 102, 0));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
