@@ -44,6 +44,8 @@ public class ChatPanel {
     private BubblePane bubble;
     private JPanel mainPanel;
     private JPanel chatPanel;
+    private JLabel[][] statLabel = new JLabel[30][500];//Label Status outgoing message
+    private int currentNpu;
 
 //    public ChatPanel(){
 //        jsp = new JScrollPane();
@@ -71,15 +73,23 @@ public class ChatPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(buildChatUI(chatContentList), gbc);
 
+        //init stat Label
+        
 //        jsp.add(new VerticalScrollPane(mainPanel));
         jsp = new JScrollPane(new VerticalScrollPane(mainPanel));
         jsp.setDoubleBuffered(true);
+
+        bubble.selectAll();
+
+        jsp.validate();
+
+        jsp.getVerticalScrollBar().setValue(jsp.getVerticalScrollBar().getMaximum());
 
     }
 
     public JScrollPane showChatWindow(List<ChatEntry> chatContentList) {
         // Create parent container JPanel for all other JComponents.
-        JPanel mainPanel = new JPanel();
+        mainPanel = new JPanel();
         mainPanel.setBackground(new Color(51, 51, 51));
         mainPanel.setOpaque(true);
         mainPanel.setLayout(new GridBagLayout());
@@ -94,6 +104,11 @@ public class ChatPanel {
         jsp = new JScrollPane(new VerticalScrollPane(mainPanel));
         jsp.setDoubleBuffered(true);
 
+        bubble.selectAll();
+
+        jsp.validate();
+
+        jsp.getVerticalScrollBar().setValue(jsp.getVerticalScrollBar().getMaximum());
         return jsp;
     }
 
@@ -112,7 +127,7 @@ public class ChatPanel {
             bubble.setBackground(Color.YELLOW);
             gbc.anchor = GridBagConstraints.WEST;
         } else {
-            bubble.setBackground(Color.CYAN);
+            bubble.setBackground(Color.GREEN);
             gbc.anchor = GridBagConstraints.EAST;
         }
 
@@ -163,7 +178,12 @@ public class ChatPanel {
             }
             JLabel statusLabel = new JLabel(statusString);
             statusLabel.setForeground(Color.GRAY);
-            chatPanel.add(statusLabel, gbc);
+            statLabel[currentNpu][chatEntry.nomor] = new JLabel(statusString);
+            System.out.println("[" + currentNpu + "][" + chatEntry.nomor + "]");
+            statusLabel.setForeground(Color.GRAY);
+            statLabel[currentNpu][chatEntry.nomor].setForeground(Color.GRAY);
+//            chatPanel.add(statusLabel, gbc);
+            chatPanel.add(statLabel[currentNpu][chatEntry.nomor], gbc);
         } else {
             gbc.insets.set(0, 0, 40, 0);
             gbc.weightx = 1.0;
@@ -177,8 +197,44 @@ public class ChatPanel {
         bubble.selectAll();
 
         jsp.validate();
-        
+
         jsp.getVerticalScrollBar().setValue(jsp.getVerticalScrollBar().getMaximum());
+    }
+
+    public void updateOnlyStatChat(List<ChatEntry> chatContentList, int nomorPesanAck) {
+
+        GridBagConstraints gbc = new GridBagConstraints();
+
+//        ChatEntry chatEntry = new ChatEntry(name, content, date, currentNpu, currentNpu, nomorPesanAck); 
+//= chatContentList.get(nomorPesanAck);
+        for (ChatEntry chatEntry : chatContentList) {
+            if (chatEntry.nomor == nomorPesanAck) {
+                String statusString = "";
+                switch (chatEntry.status) {
+                    case ChatStatus.PENDING:
+                        statusString = "Pending";
+                        break;
+                    case ChatStatus.ONPROGRES:
+                        statusString = "On progress";
+                        break;
+                    case ChatStatus.DELIVERED:
+                        statusString = "Delivered";
+                        break;
+                    case ChatStatus.FAIL:
+                        statusString = "Fail";
+                        break;
+                }
+
+                statLabel[currentNpu][chatEntry.nomor].setText(statusString);
+
+            }
+
+            bubble.selectAll();
+
+            jsp.validate();
+
+            jsp.getVerticalScrollBar().setValue(jsp.getVerticalScrollBar().getMaximum());
+        }
     }
 
     private JPanel buildChatUI(List<ChatEntry> chatContentList) {
@@ -216,7 +272,7 @@ public class ChatPanel {
                 bubble.setBackground(Color.YELLOW);
                 gbc.anchor = GridBagConstraints.WEST;
             } else {
-                bubble.setBackground(Color.CYAN);
+                bubble.setBackground(Color.GREEN);
                 gbc.anchor = GridBagConstraints.EAST;
             }
 
@@ -265,9 +321,15 @@ public class ChatPanel {
                         statusString = "Fail";
                         break;
                 }
+
                 JLabel statusLabel = new JLabel(statusString);
                 statusLabel.setForeground(Color.GRAY);
-                chatPanel.add(statusLabel, gbc);
+                statLabel[currentNpu][chatEntry.nomor] = new JLabel(statusString);
+                System.out.println("[" + currentNpu + "][" + chatEntry.nomor + "]");
+                statusLabel.setForeground(Color.GRAY);
+                statLabel[currentNpu][chatEntry.nomor].setForeground(Color.GRAY);
+//            chatPanel.add(statusLabel, gbc);
+                chatPanel.add(statLabel[currentNpu][chatEntry.nomor], gbc);
             } else {
                 gbc.insets.set(0, 0, 40, 0);
                 gbc.weightx = 1.0;
@@ -280,6 +342,7 @@ public class ChatPanel {
         }
 
         return chatPanel;
+
     }
 
     private class BubblePane extends JTextArea {
@@ -418,4 +481,7 @@ public class ChatPanel {
         }
     }
 
+    public void setCurrentNpu(int currentNpu) {
+        this.currentNpu = currentNpu;
+    }
 }
